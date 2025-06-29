@@ -1,5 +1,6 @@
 ﻿using System.Numerics;
 using Raylib_cs;
+using static Raylib_cs.Raylib;
 
 namespace XTouhou;
 
@@ -21,15 +22,15 @@ class Program
 
     static void Main()
     {
-        Raylib.InitWindow(ScreenWidth, ScreenHeight, "东方弹幕游戏");
-        Raylib.SetTargetFPS(60);
+        InitWindow(ScreenWidth, ScreenHeight, "东方弹幕游戏");
+        SetTargetFPS(60);
 
         player = new Player();
         InitObjectPools();
 
-        while (!Raylib.WindowShouldClose())
+        while (!WindowShouldClose())
         {
-            float deltaTime = Raylib.GetFrameTime();
+            float deltaTime = GetFrameTime();
             
             switch (gameState)
             {
@@ -44,8 +45,8 @@ class Program
                     break;
             }
             
-            Raylib.BeginDrawing();
-            Raylib.ClearBackground(Color.Black);
+            BeginDrawing();
+            ClearBackground(Color.Black);
             
             switch (gameState)
             {
@@ -60,10 +61,10 @@ class Program
                     break;
             }
             
-            Raylib.EndDrawing();
+            EndDrawing();
         }
         
-        Raylib.CloseWindow();
+        CloseWindow();
     }
 
     static void InitObjectPools()
@@ -83,7 +84,7 @@ class Program
 
     static void UpdateTitleScreen()
     {
-        if (Raylib.IsKeyPressed(KeyboardKey.Enter))
+        if (IsKeyPressed(KeyboardKey.Enter))
         {
             StartNewGame();
             gameState = GameState.PLAYING;
@@ -106,11 +107,11 @@ class Program
         player.Update(deltaTime);
         
         // 玩家射击
-        if (Raylib.IsKeyDown(KeyboardKey.Z))
+        if (IsKeyDown(KeyboardKey.Z))
             player.Shoot(deltaTime);
         
         // 慢速移动（Focus模式）
-        player.isFocused = Raylib.IsKeyDown(KeyboardKey.LeftShift);
+        player.isFocused = IsKeyDown(KeyboardKey.LeftShift);
         
         // 敌机生成逻辑
         SpawnEnemies(deltaTime);
@@ -136,7 +137,7 @@ class Program
             if (enemy != null)
             {
                 enemy.Spawn(new Vector2(
-                    Raylib.GetRandomValue(100, ScreenWidth - 100),
+                    GetRandomValue(100, ScreenWidth - 100),
                     -50
                 ));
             }
@@ -179,7 +180,7 @@ class Program
             
             foreach (var enemy in enemies)
             {
-                if (enemy.active && Raylib.CheckCollisionCircles(
+                if (enemy.active && CheckCollisionCircles(
                         bullet.position, bullet.radius,
                         enemy.position, enemy.radius))
                 {
@@ -192,7 +193,7 @@ class Program
         // 敌弹 vs 玩家
         foreach (var bullet in enemyBullets)
         {
-            if (bullet.active && Raylib.CheckCollisionCircles(
+            if (bullet.active && CheckCollisionCircles(
                     bullet.position, bullet.radius,
                     player.position, player.hitRadius))
             {
@@ -204,9 +205,9 @@ class Program
 
     static void DrawTitleScreen()
     {
-        Raylib.DrawText("东方弹幕游戏", ScreenWidth/2 - 100, 150, 40, Color.White);
-        Raylib.DrawText("按 ENTER 开始游戏", ScreenWidth/2 - 120, 300, 24, Color.Green);
-        Raylib.DrawText("Z: 射击  Shift: 低速移动  方向键: 移动", ScreenWidth/2 - 200, 400, 20, Color.Yellow);
+        DrawText("东方弹幕游戏", ScreenWidth/2 - 100, 150, 40, Color.White);
+        DrawText("按 ENTER 开始游戏", ScreenWidth/2 - 120, 300, 24, Color.Green);
+        DrawText("Z: 射击  Shift: 低速移动  方向键: 移动", ScreenWidth/2 - 200, 400, 20, Color.Yellow);
     }
 
     static void DrawGame()
@@ -227,20 +228,20 @@ class Program
             if (bullet.active) bullet.Draw();
         
         // 绘制UI
-        Raylib.DrawText($"Score: {player.score}", 10, 10, 20, Color.White);
-        Raylib.DrawText($"Power: {player.power}", 10, 40, 20, Color.Yellow);
+        DrawText($"Score: {player.score}", 10, 10, 20, Color.White);
+        DrawText($"Power: {player.power}", 10, 40, 20, Color.Yellow);
     }
 
     static void DrawGameOver()
     {
-        Raylib.DrawText("游戏结束", ScreenWidth/2 - 80, ScreenHeight/2 - 50, 40, Color.Red);
-        Raylib.DrawText($"最终得分: {player.score}", ScreenWidth / 2 - 100, ScreenHeight / 2, 30, Color.White);
-        Raylib.DrawText("按 ENTER 重新开始", ScreenWidth/2 - 120, ScreenHeight/2 + 80, 24, Color.Green);
+        DrawText("游戏结束", ScreenWidth/2 - 80, ScreenHeight/2 - 50, 40, Color.Red);
+        DrawText($"最终得分: {player.score}", ScreenWidth / 2 - 100, ScreenHeight / 2, 30, Color.White);
+        DrawText("按 ENTER 重新开始", ScreenWidth/2 - 120, ScreenHeight/2 + 80, 24, Color.Green);
     }
 
     static void UpdateGameOver()
     {
-        if (Raylib.IsKeyPressed(KeyboardKey.Enter))
+        if (IsKeyPressed(KeyboardKey.Enter))
         {
             StartNewGame();
             gameState = GameState.TITLE;
@@ -277,8 +278,8 @@ class Player
     {
         // 移动输入
         Vector2 input = new Vector2(
-            Raylib.IsKeyDown(KeyboardKey.Right) ? 1 : Raylib.IsKeyDown(KeyboardKey.Left) ? -1 : 0,
-            Raylib.IsKeyDown(KeyboardKey.Down) ? 1 : Raylib.IsKeyDown(KeyboardKey.Up) ? -1 : 0
+            IsKeyDown(KeyboardKey.Right) ? 1 : IsKeyDown(KeyboardKey.Left) ? -1 : 0,
+            IsKeyDown(KeyboardKey.Down) ? 1 : IsKeyDown(KeyboardKey.Up) ? -1 : 0
         );
         
         // 标准化移动向量
@@ -325,10 +326,10 @@ class Player
     public void Draw()
     {
         // 绘制玩家
-        Raylib.DrawCircleV(position, 8, isFocused ? Color.SkyBlue : Color.White);
+        DrawCircleV(position, 8, isFocused ? Color.SkyBlue : Color.White);
         
         // 绘制判定点
-        Raylib.DrawCircleV(position, hitRadius, Color.Red);
+        DrawCircleV(position, hitRadius, Color.Red);
     }
 }
 
@@ -358,7 +359,7 @@ class PlayerBullet
     
     public void Draw()
     {
-        Raylib.DrawCircleV(position, radius, Color.Yellow);
+        DrawCircleV(position, radius, Color.Yellow);
     }
 }
 
@@ -428,7 +429,7 @@ class Enemy
     
     public void Draw()
     {
-        Raylib.DrawCircleV(position, radius, Color.Red);
+        DrawCircleV(position, radius, Color.Red);
     }
 }
 
@@ -458,6 +459,6 @@ class EnemyBullet
     
     public void Draw()
     {
-        Raylib.DrawCircleV(position, radius, Color.Blue);
+        DrawCircleV(position, radius, Color.Blue);
     }
 }
